@@ -4,6 +4,8 @@ import snnseiBg from "@/assets/snnsei-bg.jpg.asset.json";
 import snnseiLogo from "@/assets/snnsei-logo.png.asset.json";
 import { BrandPage } from "@/components/BrandPage";
 import { BrandShell } from "@/components/BrandShell";
+import { Suspense } from "react";
+import { SnnseiMedia, mediaQuery } from "@/components/SnnseiMedia";
 
 export const Route = createFileRoute("/snnsei")({
   head: () => ({
@@ -16,6 +18,8 @@ export const Route = createFileRoute("/snnsei")({
       { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
+  loader: ({ context }) => context.queryClient.ensureQueryData(mediaQuery),
+  errorComponent: () => <p className="p-10 text-center">تعذر تحميل المحتوى.</p>,
   component: SnnseiPage,
 });
 
@@ -47,6 +51,9 @@ function SnnseiPage() {
           ))}
         </div>
       </BrandPage>
+      <div className="relative mx-auto w-full max-w-7xl px-5 pb-16 lg:px-8">
+        <Suspense fallback={null}><SnnseiMedia /></Suspense>
+      </div>
     </BrandShell>
   );
 }
