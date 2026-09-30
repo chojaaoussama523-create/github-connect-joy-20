@@ -14,7 +14,237 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      gm7_active_tournaments: {
+        Row: {
+          bracket_size: number
+          created_at: string
+          format: string
+          game_id: string
+          game_name: string
+          id: string
+          mode: number
+          platform: string
+          prize_mad: number
+          starts_at: string | null
+          status: string
+          teams: Json
+          third: string | null
+          title: string
+          updated_at: string
+          winners: Json
+        }
+        Insert: {
+          bracket_size?: number
+          created_at?: string
+          format?: string
+          game_id: string
+          game_name: string
+          id?: string
+          mode?: number
+          platform: string
+          prize_mad?: number
+          starts_at?: string | null
+          status?: string
+          teams?: Json
+          third?: string | null
+          title: string
+          updated_at?: string
+          winners?: Json
+        }
+        Update: {
+          bracket_size?: number
+          created_at?: string
+          format?: string
+          game_id?: string
+          game_name?: string
+          id?: string
+          mode?: number
+          platform?: string
+          prize_mad?: number
+          starts_at?: string | null
+          status?: string
+          teams?: Json
+          third?: string | null
+          title?: string
+          updated_at?: string
+          winners?: Json
+        }
+        Relationships: []
+      }
+      market_orders: {
+        Row: {
+          address: string
+          city: string
+          confirmed_at: string | null
+          created_at: string
+          customer_name: string
+          id: string
+          items: Json
+          notes: string
+          order_number: string
+          payment_method: string
+          phone: string
+          shipping_mad: number
+          status: string
+          subtotal_mad: number
+          total_mad: number
+        }
+        Insert: {
+          address: string
+          city: string
+          confirmed_at?: string | null
+          created_at?: string
+          customer_name: string
+          id?: string
+          items: Json
+          notes?: string
+          order_number: string
+          payment_method?: string
+          phone: string
+          shipping_mad?: number
+          status?: string
+          subtotal_mad: number
+          total_mad: number
+        }
+        Update: {
+          address?: string
+          city?: string
+          confirmed_at?: string | null
+          created_at?: string
+          customer_name?: string
+          id?: string
+          items?: Json
+          notes?: string
+          order_number?: string
+          payment_method?: string
+          phone?: string
+          shipping_mad?: number
+          status?: string
+          subtotal_mad?: number
+          total_mad?: number
+        }
+        Relationships: []
+      }
+      market_products: {
+        Row: {
+          active: boolean
+          created_at: string
+          description: string
+          id: string
+          image_url: string | null
+          price_mad: number
+          stock: number
+          title: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          description?: string
+          id?: string
+          image_url?: string | null
+          price_mad: number
+          stock?: number
+          title: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          description?: string
+          id?: string
+          image_url?: string | null
+          price_mad?: number
+          stock?: number
+          title?: string
+        }
+        Relationships: []
+      }
+      snnsei_media: {
+        Row: {
+          created_at: string
+          id: string
+          is_live: boolean
+          kind: string
+          platform: string
+          sort: number
+          title: string
+          url: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_live?: boolean
+          kind?: string
+          platform: string
+          sort?: number
+          title: string
+          url: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_live?: boolean
+          kind?: string
+          platform?: string
+          sort?: number
+          title?: string
+          url?: string
+        }
+        Relationships: []
+      }
+      tournament_registrations: {
+        Row: {
+          captain: string
+          city: string
+          code: string
+          created_at: string
+          discord: string
+          game_id: string
+          id: string
+          mode: number
+          platform: string
+          platform_id: string
+          roster: string[]
+          status: string
+          sub: string
+          team: string
+          whatsapp: string
+        }
+        Insert: {
+          captain: string
+          city: string
+          code: string
+          created_at?: string
+          discord?: string
+          game_id: string
+          id?: string
+          mode: number
+          platform: string
+          platform_id: string
+          roster?: string[]
+          status?: string
+          sub?: string
+          team: string
+          whatsapp: string
+        }
+        Update: {
+          captain?: string
+          city?: string
+          code?: string
+          created_at?: string
+          discord?: string
+          game_id?: string
+          id?: string
+          mode?: number
+          platform?: string
+          platform_id?: string
+          roster?: string[]
+          status?: string
+          sub?: string
+          team?: string
+          whatsapp?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
