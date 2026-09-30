@@ -14,60 +14,7 @@ export type Database = {
   }
   public: {
     Tables: {
-      tournament_registrations: {
-        Row: {
-          captain: string
-          city: string
-          code: string
-          created_at: string
-          discord: string
-          game_id: string
-          id: string
-          mode: number
-          platform: string
-          platform_id: string
-          roster: string[]
-          status: string
-          sub: string
-          team: string
-          whatsapp: string
-        }
-        Insert: {
-          captain: string
-          city: string
-          code: string
-          created_at?: string
-          discord?: string
-          game_id: string
-          id?: string
-          mode: number
-          platform: string
-          platform_id: string
-          roster?: string[]
-          status?: string
-          sub?: string
-          team: string
-          whatsapp: string
-        }
-        Update: {
-          captain?: string
-          city?: string
-          code?: string
-          created_at?: string
-          discord?: string
-          game_id?: string
-          id?: string
-          mode?: number
-          platform?: string
-          platform_id?: string
-          roster?: string[]
-          status?: string
-          sub?: string
-          team?: string
-          whatsapp?: string
-        }
-        Relationships: []
-      }
+      [_ in never]: never
     }
     Views: {
       [_ in never]: never
