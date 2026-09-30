@@ -15,6 +15,7 @@ import { Route as HomeRouteImport } from './routes/home'
 import { Route as MarketRouteImport } from './routes/market'
 import { Route as SnnseiRouteImport } from './routes/snnsei'
 import { Route as TournamentsRouteImport } from './routes/tournaments'
+import { Route as InvoiceOrderIdRouteImport } from './routes/invoice.$orderId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -46,6 +47,11 @@ const TournamentsRoute = TournamentsRouteImport.update({
   path: '/tournaments',
   getParentRoute: () => rootRouteImport,
 } as any)
+const InvoiceOrderIdRoute = InvoiceOrderIdRouteImport.update({
+  id: '/invoice/$orderId',
+  path: '/invoice/$orderId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -54,6 +60,7 @@ export interface FileRoutesByFullPath {
   '/market': typeof MarketRoute
   '/snnsei': typeof SnnseiRoute
   '/tournaments': typeof TournamentsRoute
+  '/invoice/$orderId': typeof InvoiceOrderIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -62,6 +69,7 @@ export interface FileRoutesByTo {
   '/market': typeof MarketRoute
   '/snnsei': typeof SnnseiRoute
   '/tournaments': typeof TournamentsRoute
+  '/invoice/$orderId': typeof InvoiceOrderIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -71,13 +79,27 @@ export interface FileRoutesById {
   '/market': typeof MarketRoute
   '/snnsei': typeof SnnseiRoute
   '/tournaments': typeof TournamentsRoute
+  '/invoice/$orderId': typeof InvoiceOrderIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    '/' | '/gm7-dashboard' | '/home' | '/market' | '/snnsei' | '/tournaments'
+    | '/'
+    | '/gm7-dashboard'
+    | '/home'
+    | '/market'
+    | '/snnsei'
+    | '/tournaments'
+    | '/invoice/$orderId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/gm7-dashboard' | '/home' | '/market' | '/snnsei' | '/tournaments'
+  to:
+    | '/'
+    | '/gm7-dashboard'
+    | '/home'
+    | '/market'
+    | '/snnsei'
+    | '/tournaments'
+    | '/invoice/$orderId'
   id:
     | '__root__'
     | '/'
@@ -86,6 +108,7 @@ export interface FileRouteTypes {
     | '/market'
     | '/snnsei'
     | '/tournaments'
+    | '/invoice/$orderId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -95,6 +118,7 @@ export interface RootRouteChildren {
   MarketRoute: typeof MarketRoute
   SnnseiRoute: typeof SnnseiRoute
   TournamentsRoute: typeof TournamentsRoute
+  InvoiceOrderIdRoute: typeof InvoiceOrderIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -141,6 +165,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TournamentsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/invoice/$orderId': {
+      id: '/invoice/$orderId'
+      path: '/invoice/$orderId'
+      fullPath: '/invoice/$orderId'
+      preLoaderRoute: typeof InvoiceOrderIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -151,6 +182,7 @@ const rootRouteChildren: RootRouteChildren = {
   MarketRoute: MarketRoute,
   SnnseiRoute: SnnseiRoute,
   TournamentsRoute: TournamentsRoute,
+  InvoiceOrderIdRoute: InvoiceOrderIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

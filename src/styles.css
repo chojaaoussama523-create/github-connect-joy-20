@@ -569,3 +569,35 @@
     transition-duration: 0.01ms !important;
   }
 }
+/* ---------- Invoice (A4 / POS 80mm, RTL) ---------- */
+.invoice {
+  margin: 0 auto;
+  background: var(--card);
+  color: var(--card-foreground);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 24px;
+}
+.invoice-a4 { max-width: 48rem; }
+.invoice-pos { max-width: 80mm; padding: 10px; font-size: 12px; }
+.invoice-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; border-bottom: 2px dashed var(--border); padding-bottom: 12px; }
+.invoice-pos .invoice-head { flex-direction: column; align-items: center; text-align: center; }
+.invoice-block { margin: 12px 0; line-height: 1.8; }
+.invoice-table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
+.invoice-table th, .invoice-table td { padding: 6px 4px; text-align: right; border-bottom: 1px solid var(--border); }
+.invoice-pos .invoice-table { font-size: 11px; }
+.invoice-totals { margin-top: 12px; }
+.invoice-totals p { display: flex; justify-content: space-between; padding: 3px 0; font-size: 0.875rem; }
+.invoice-grand { font-weight: 900; font-size: 1.1rem !important; border-top: 2px solid var(--foreground); margin-top: 6px; padding-top: 6px !important; }
+.invoice-qr { margin-top: 16px; display: flex; flex-direction: column; align-items: center; gap: 6px; text-align: center; }
+.invoice-qr svg { background: #fff; padding: 6px; border-radius: 6px; }
+
+@media print {
+  html, body { background: #fff !important; color: #000 !important; }
+  .invoice { background: #fff; color: #000; border: none; border-radius: 0; max-width: none; }
+  .invoice-pos { width: 74mm; }
+  .invoice-table th, .invoice-table td, .invoice-head { border-color: #000; }
+  .invoice-grand { border-color: #000; }
+}
+
+.aspect-short { aspect-ratio: 9 / 16; }
