@@ -50,7 +50,7 @@ function InvoicePage() {
       <style>{`@media print { @page { size: ${format === "pos" ? "80mm auto" : "A4"}; margin: ${format === "pos" ? "3mm" : "12mm"}; } }`}</style>
       <div className="mx-auto mb-6 flex max-w-3xl flex-wrap items-center justify-between gap-3 px-5 print:hidden">
         <p className="font-bold text-primary">
-          ✅ تم تسجيل طلبك — غادي نتاصلو بيك للتأكيد
+          تم تسجيل طلبك — غادي نتاصلو بيك للتأكيد
         </p>
         <div className="flex gap-2">
           <Button variant={format === "a4" ? "default" : "outline"} onClick={() => print("a4")}>
