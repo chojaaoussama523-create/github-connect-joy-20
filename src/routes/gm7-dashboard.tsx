@@ -6,6 +6,7 @@ import dashboardBg from "@/assets/dashboard-bg.jpg.asset.json";
 import dashboardLogo from "@/assets/gm7-dashboard-logo.png.asset.json";
 import { RegistrationsAdmin } from "@/components/RegistrationsAdmin";
 import { TournamentEngine } from "@/components/TournamentEngine";
+import { OrdersAdmin, TournamentsAdmin, MediaAdmin } from "@/components/StoreAdmin";
 import { Button } from "@/components/ui/button";
 import { verifyAdminAccess } from "@/lib/gm7-admin.functions";
 import {
@@ -122,7 +123,7 @@ function Gate({ onSuccess }: { onSuccess: (code: string) => void }) {
 }
 
 function Console({ access, onLogout }: { access: string; onLogout: () => void }) {
-  const [tab, setTab] = useState<"market" | "tournaments" | "registrations">("tournaments");
+  const [tab, setTab] = useState<"market" | "tournaments" | "registrations" | "orders" | "media">("tournaments");
   const items: (MarketItem | TournamentItem)[] = tab === "market" ? MARKET_ITEMS : TOURNAMENT_ITEMS;
 
   return (
@@ -140,7 +141,7 @@ function Console({ access, onLogout }: { access: string; onLogout: () => void })
         </Button>
       </header>
 
-      <div className="mt-8 flex gap-2" role="tablist">
+      <div className="mt-8 flex flex-wrap gap-2" role="tablist">
         <Button variant={tab === "tournaments" ? "default" : "outline"} onClick={() => setTab("tournaments")} role="tab" aria-selected={tab === "tournaments"}>
           <Swords aria-hidden="true" /> البطولات
         </Button>
@@ -150,12 +151,22 @@ function Console({ access, onLogout }: { access: string; onLogout: () => void })
         <Button variant={tab === "market" ? "default" : "outline"} onClick={() => setTab("market")} role="tab" aria-selected={tab === "market"}>
           <ShoppingBag aria-hidden="true" /> المتجر
         </Button>
+        <Button variant={tab === "orders" ? "default" : "outline"} onClick={() => setTab("orders")} role="tab" aria-selected={tab === "orders"}>
+          <ShoppingBag aria-hidden="true" /> الطلبات COD
+        </Button>
+        <Button variant={tab === "media" ? "default" : "outline"} onClick={() => setTab("media")} role="tab" aria-selected={tab === "media"}>
+          <Users aria-hidden="true" /> SNNSEI Media
+        </Button>
       </div>
 
       {tab === "registrations" ? (
         <div className="mt-6"><RegistrationsAdmin access={access} /></div>
+      ) : tab === "orders" ? (
+        <div className="mt-6"><OrdersAdmin access={access} /></div>
+      ) : tab === "media" ? (
+        <div className="mt-6"><MediaAdmin access={access} /></div>
       ) : tab === "tournaments" ? (
-        <div className="mt-6"><TournamentEngine /></div>
+        <div className="mt-6 space-y-8"><TournamentsAdmin access={access} /><TournamentEngine /></div>
       ) : (
       <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {items.map((item) => (
