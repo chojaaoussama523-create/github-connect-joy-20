@@ -16,60 +16,152 @@ export type Database = {
     Tables: {
       gm7_active_tournaments: {
         Row: {
+          ai_notes: string
+          banner_url: string | null
           bracket_size: number
+          category: string
           created_at: string
+          description: string
+          discord_url: string | null
           format: string
           game_id: string
           game_name: string
           id: string
+          logo_url: string | null
+          matches: Json
           mode: number
           platform: string
+          podium: Json
           prize_mad: number
+          prize_split: Json
+          slots: number
           starts_at: string | null
           status: string
+          stream_url: string | null
           teams: Json
           third: string | null
+          thumb_url: string | null
           title: string
           updated_at: string
           winners: Json
         }
         Insert: {
+          ai_notes?: string
+          banner_url?: string | null
           bracket_size?: number
+          category?: string
           created_at?: string
+          description?: string
+          discord_url?: string | null
           format?: string
           game_id: string
           game_name: string
           id?: string
+          logo_url?: string | null
+          matches?: Json
           mode?: number
           platform: string
+          podium?: Json
           prize_mad?: number
+          prize_split?: Json
+          slots?: number
           starts_at?: string | null
           status?: string
+          stream_url?: string | null
           teams?: Json
           third?: string | null
+          thumb_url?: string | null
           title: string
           updated_at?: string
           winners?: Json
         }
         Update: {
+          ai_notes?: string
+          banner_url?: string | null
           bracket_size?: number
+          category?: string
           created_at?: string
+          description?: string
+          discord_url?: string | null
           format?: string
           game_id?: string
           game_name?: string
           id?: string
+          logo_url?: string | null
+          matches?: Json
           mode?: number
           platform?: string
+          podium?: Json
           prize_mad?: number
+          prize_split?: Json
+          slots?: number
           starts_at?: string | null
           status?: string
+          stream_url?: string | null
           teams?: Json
           third?: string | null
+          thumb_url?: string | null
           title?: string
           updated_at?: string
           winners?: Json
         }
         Relationships: []
+      }
+      gm7_tournament_registrations: {
+        Row: {
+          captain_name: string
+          city: string
+          created_at: string
+          discord: string
+          id: string
+          mode: number
+          phone: string
+          platform_id: string
+          players: Json
+          status: string
+          team_name: string
+          tournament_id: string
+          updated_at: string
+        }
+        Insert: {
+          captain_name: string
+          city: string
+          created_at?: string
+          discord?: string
+          id?: string
+          mode?: number
+          phone: string
+          platform_id: string
+          players?: Json
+          status?: string
+          team_name?: string
+          tournament_id: string
+          updated_at?: string
+        }
+        Update: {
+          captain_name?: string
+          city?: string
+          created_at?: string
+          discord?: string
+          id?: string
+          mode?: number
+          phone?: string
+          platform_id?: string
+          players?: Json
+          status?: string
+          team_name?: string
+          tournament_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "gm7_tournament_registrations_tournament_id_fkey"
+            columns: ["tournament_id"]
+            isOneToOne: false
+            referencedRelation: "gm7_active_tournaments"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       market_orders: {
         Row: {
