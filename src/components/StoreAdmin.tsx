@@ -38,6 +38,7 @@ export function OrdersAdmin({ access }: { access: string }) {
         <Stat label="قيد الانتظار" value={String(orders.filter((o) => o.status === "pending").length)} />
         <Stat label="المبيعات المقبوضة" value={formatMad(revenue)} />
       </div>
+      <Button variant="outline" onClick={() => exportCsv(orders)}>تصدير CSV / Excel</Button>
       {isLoading ? <p className="text-muted-foreground">...</p> : null}
       <div className="overflow-x-auto rounded-xl border border-border bg-card/80">
         <table className="w-full text-sm">
@@ -62,7 +63,7 @@ export function OrdersAdmin({ access }: { access: string }) {
                   </select>
                 </td>
                 <td className="p-3">
-                  {o.status === "pending" ? <Button size="sm" onClick={() => update(o.id, "confirmed")}>تأكيد</Button> : null}
+                  <div className="flex gap-1">{o.status === "pending" ? <Button size="sm" onClick={() => update(o.id, "confirmed")}>تأكيد</Button> : null}<a className="rounded-md border border-border px-2 py-1 text-xs" target="_blank" rel="noreferrer" href={waLink(o.phone, `مرحبا ${o.customerName}، نؤكد طلبك ${o.orderNumber} بمبلغ ${formatMad(o.totalMad)} (الدفع عند الاستلام).`)}>واتساب</a></div>
                 </td>
               </tr>
             ))}
@@ -213,4 +214,20 @@ export function MediaAdmin({ access }: { access: string }) {
       </ul>
     </div>
   );
+}
+
+function waLink(phone: string, text: string) {
+  let p = phone.replace(/\D/g, "");
+  if (p.startsWith("0")) p = "212" + p.slice(1);
+  return `https://wa.me/${p}?text=${encodeURIComponent(text)}`;
+}
+
+function exportCsv(orders: { orderNumber: string; customerName: string; phone: string; city: string; totalMad: number; status: string }[]) {
+  const rows = [["رقم", "الزبون", "الهاتف", "المدينة", "المجموع MAD", "الحالة"], ...orders.map((o) => [o.orderNumber, o.customerName, o.phone, o.city, String(o.totalMad), o.status])];
+  const csv = "\uFEFF" + rows.map((r) => r.map((c) => `"${c.replace(/"/g, '""')}"`).join(",")).join("\n");
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" }));
+  a.download = `gm7-orders-${new Date().toISOString().slice(0, 10)}.csv`;
+  a.click();
+  URL.revokeObjectURL(a.href);
 }

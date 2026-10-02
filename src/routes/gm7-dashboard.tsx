@@ -5,8 +5,8 @@ import { useEffect, useState, type FormEvent } from "react";
 import dashboardBg from "@/assets/dashboard-bg.jpg.asset.json";
 import dashboardLogo from "@/assets/gm7-dashboard-logo.png.asset.json";
 import { RegistrationsAdmin } from "@/components/RegistrationsAdmin";
-import { TournamentEngine } from "@/components/TournamentEngine";
-import { OrdersAdmin, TournamentsAdmin, MediaAdmin } from "@/components/StoreAdmin";
+import { TournamentsManager } from "@/components/TournamentsManager";
+import { OrdersAdmin, MediaAdmin } from "@/components/StoreAdmin";
 import { Button } from "@/components/ui/button";
 import { verifyAdminAccess } from "@/lib/gm7-admin.functions";
 import {
@@ -166,7 +166,7 @@ function Console({ access, onLogout }: { access: string; onLogout: () => void })
       ) : tab === "media" ? (
         <div className="mt-6"><MediaAdmin access={access} /></div>
       ) : tab === "tournaments" ? (
-        <div className="mt-6 space-y-8"><TournamentsAdmin access={access} /><TournamentEngine /></div>
+        <div className="mt-6 space-y-8"><TournamentsManager access={access} /></div>
       ) : (
       <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {items.map((item) => (
