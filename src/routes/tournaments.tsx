@@ -3,11 +3,8 @@ import tournamentsBg from "@/assets/tournaments-bg.jpg.asset.json";
 import tournamentsLogo from "@/assets/gm7-tournaments-logo.png.asset.json";
 import { BrandPage } from "@/components/BrandPage";
 import { BrandShell } from "@/components/BrandShell";
-import { GameCatalog } from "@/components/GameCatalog";
-import { TournamentRegistration } from "@/components/TournamentRegistration";
-import { GAMES } from "@/lib/gm7-tournaments";
 import { Suspense } from "react";
-import { ActiveTournaments, tournamentsQuery } from "@/components/ActiveTournaments";
+import { TournamentsHub, publicTournamentsQuery } from "@/components/TournamentsPublic";
 
 export const Route = createFileRoute("/tournaments")({
   head: () => ({
@@ -20,7 +17,8 @@ export const Route = createFileRoute("/tournaments")({
       { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
-  loader: ({ context }) => context.queryClient.ensureQueryData(tournamentsQuery),
+  loader: ({ context }) => context.queryClient.ensureQueryData(publicTournamentsQuery),
+  notFoundComponent: () => <p className="p-10 text-center">غير موجود.</p>,
   errorComponent: () => <p className="p-10 text-center">تعذر تحميل البطولات.</p>,
   component: TournamentsPage,
 });
@@ -38,9 +36,7 @@ function TournamentsPage() {
         accent="tournaments"
       />
       <div className="relative mx-auto w-full max-w-7xl px-5 pb-16 lg:px-8">
-        <Suspense fallback={null}><ActiveTournaments /></Suspense>
-        <GameCatalog games={GAMES} title="ألعاب بطولات GM7 — 5 أجهزة" />
-        <TournamentRegistration />
+        <Suspense fallback={null}><TournamentsHub /></Suspense>
       </div>
     </BrandShell>
   );
