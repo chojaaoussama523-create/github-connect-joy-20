@@ -1,12 +1,13 @@
 import { queryOptions, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { Calendar, Crown, Medal, Radio, Trophy, Users, X } from "lucide-react";
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { MATCH_STATE_LABELS, podiumOf, roundLabel, roundsOf, type Match } from "@/lib/gm7-bracket";
 import { formatMad } from "@/lib/gm7-format";
 import { initialsOf, officialGameLogo } from "@/lib/gm7-tournament-logos";
 import { FORMAT_LABELS, LIFECYCLE_LABELS, toEmbedUrl, type TFormat } from "@/lib/gm7-tournament-meta";
+import { checkDuplicateRegistration } from "@/lib/gm7-registrations.functions";
 import { listPublicTournaments, registerForTournament, type Tournament } from "@/lib/gm7-tournaments.functions";
 
 export const publicTournamentsQuery = queryOptions({
@@ -212,11 +213,19 @@ function Info({ label, value }: { label: string; value: string }) {
 function RegisterForm({ tournament: t, onDone }: { tournament: Tournament; onDone: () => void }) {
   const qc = useQueryClient();
   const submitFn = useServerFn(registerForTournament);
+  const dupFn = useServerFn(checkDuplicateRegistration);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [ok, setOk] = useState(false);
+  const [countdown, setCountdown] = useState(3);
   const roster = t.mode;
   const remaining = Math.max(t.slots - t.registered, 0);
+
+  useEffect(() => {
+    if (countdown <= 0) return;
+    const id = setTimeout(() => setCountdown((c) => c - 1), 1000);
+    return () => clearTimeout(id);
+  }, [countdown]);
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -229,6 +238,13 @@ function RegisterForm({ tournament: t, onDone }: { tournament: Tournament; onDon
     setBusy(true);
     setError(null);
     try {
+      const dup = await dupFn({
+        data: { tournamentId: t.id, phone: String(f.get("phone") ?? ""), platformId: String(f.get("platformId") ?? "") },
+      });
+      if (dup.duplicate) {
+        setError("⚠️ تسجيل مكرر: هذا الرقم أو معرّف اللعبة مسجل مسبقاً في هاته البطولة. التكرار يعرضك للاستبعاد.");
+        return;
+      }
       await submitFn({
         data: {
           tournamentId: t.id,
@@ -263,6 +279,12 @@ function RegisterForm({ tournament: t, onDone }: { tournament: Tournament; onDon
 
   return (
     <form onSubmit={submit} className="space-y-3 rounded-xl border border-border bg-background/60 p-4">
+      <div className="flex items-start gap-2 rounded-lg border border-amber-500/50 bg-amber-500/10 p-3 text-xs leading-6 text-amber-200" role="alert">
+        <span className="text-base leading-6" aria-hidden="true">⚠️</span>
+        <p>
+          <b>تحذير النزاهة:</b> يُسمح بتسجيل واحد فقط لكل لاعب. يُمنع التسجيل المتكرر بنفس رقم الهاتف أو معرّف اللعبة (IGN) — أي محاولة تكرار تُرفض تلقائياً وتعرض صاحبها للاستبعاد الفوري من البطولة.
+        </p>
+      </div>
       <p className="text-sm font-bold">
         {roster === 1 ? "تسجيل فردي (Solo 1v1)" : `تسجيل فريق ${roster}v${roster}`} — بقيت {remaining} مقاعد
       </p>
@@ -286,8 +308,8 @@ function RegisterForm({ tournament: t, onDone }: { tournament: Tournament; onDon
         </div>
       ) : null}
       {error ? <p className="text-sm text-destructive" role="alert">{error}</p> : null}
-      <Button type="submit" size="lg" className="w-full" disabled={busy}>
-        {busy ? "جارٍ الإرسال..." : "إرسال التسجيل"}
+      <Button type="submit" size="lg" className="w-full" disabled={busy || countdown > 0}>
+        {countdown > 0 ? `اقرأ التحذير أولاً (${countdown}...)` : busy ? "جارٍ الإرسال..." : "إرسال التسجيل"}
       </Button>
     </form>
   );
