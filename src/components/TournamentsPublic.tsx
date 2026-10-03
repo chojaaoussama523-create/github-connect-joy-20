@@ -7,6 +7,7 @@ import { MATCH_STATE_LABELS, podiumOf, roundLabel, roundsOf, type Match } from "
 import { formatMad } from "@/lib/gm7-format";
 import { initialsOf, officialGameLogo } from "@/lib/gm7-tournament-logos";
 import { FORMAT_LABELS, LIFECYCLE_LABELS, toEmbedUrl, type TFormat } from "@/lib/gm7-tournament-meta";
+import { checkDuplicateRegistration } from "@/lib/gm7-registrations.functions";
 import { listPublicTournaments, registerForTournament, type Tournament } from "@/lib/gm7-tournaments.functions";
 
 export const publicTournamentsQuery = queryOptions({
@@ -241,7 +242,7 @@ function RegisterForm({ tournament: t, onDone }: { tournament: Tournament; onDon
         data: { tournamentId: t.id, phone: String(f.get("phone") ?? ""), platformId: String(f.get("platformId") ?? "") },
       });
       if (dup.duplicate) {
-        setError("⚠️ تسجيل مكرر: هذا الرقم أو معرّف اللعبة مسجل already في هاته البطولة. التكرار يعرضك للاستبعاد.");
+        setError("⚠️ تسجيل مكرر: هذا الرقم أو معرّف اللعبة مسجل مسبقاً في هاته البطولة. التكرار يعرضك للاستبعاد.");
         return;
       }
       await submitFn({
