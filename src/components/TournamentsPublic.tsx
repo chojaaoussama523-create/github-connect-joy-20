@@ -1,7 +1,7 @@
 import { queryOptions, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { Calendar, Crown, Medal, Radio, Trophy, Users, X } from "lucide-react";
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { MATCH_STATE_LABELS, podiumOf, roundLabel, roundsOf, type Match } from "@/lib/gm7-bracket";
 import { formatMad } from "@/lib/gm7-format";
