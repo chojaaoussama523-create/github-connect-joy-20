@@ -24,7 +24,9 @@ export function OrdersAdmin({ access }: { access: string }) {
   const setStatus = useServerFn(adminSetOrderStatus);
   const { data, refetch, isLoading } = useQuery({ queryKey: ["admin-orders"], queryFn: () => list({ data: { access } }) });
   const orders = data ?? [];
+  const valid = orders.filter((o) => o.status !== "cancelled");
   const revenue = orders.filter((o) => o.status === "paid" || o.status === "delivered").reduce((s, o) => s + o.totalMad, 0);
+  const avg = valid.length ? valid.reduce((s, o) => s + o.totalMad, 0) / valid.length : 0;
 
   async function update(id: string, status: OrderStatus) {
     await setStatus({ data: { access, id, status } });
@@ -33,10 +35,11 @@ export function OrdersAdmin({ access }: { access: string }) {
 
   return (
     <div dir="rtl" className="space-y-4">
-      <div className="grid gap-3 sm:grid-cols-3">
+      <div className="grid gap-3 sm:grid-cols-4">
         <Stat label="الطلبات" value={String(orders.length)} />
-        <Stat label="قيد الانتظار" value={String(orders.filter((o) => o.status === "pending").length)} />
+        <Stat label="طلبات جديدة" value={String(orders.filter((o) => o.status === "pending").length)} />
         <Stat label="المبيعات المقبوضة" value={formatMad(revenue)} />
+        <Stat label="متوسط السلة" value={formatMad(Math.round(avg))} />
       </div>
       <Button variant="outline" onClick={() => exportCsv(orders)}>تصدير CSV / Excel</Button>
       {isLoading ? <p className="text-muted-foreground">...</p> : null}

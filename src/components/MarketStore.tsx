@@ -4,7 +4,7 @@ import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
 import { Minus, Plus, ShoppingCart, Truck } from "lucide-react";
 import { useState, type FormEvent } from "react";
 import { Button } from "@/components/ui/button";
-import { createCodOrder, listProducts, FREE_SHIPPING_FROM_MAD, SHIPPING_MAD } from "@/lib/gm7-store.functions";
+import { createCodOrder, listProducts, MA_CITIES, FREE_SHIPPING_FROM_MAD, SHIPPING_MAD } from "@/lib/gm7-store.functions";
 import { formatMad } from "@/lib/gm7-format";
 
 export const productsQuery = queryOptions({ queryKey: ["market-products"], queryFn: () => listProducts() });
@@ -26,7 +26,7 @@ export function MarketStore() {
 
   function change(id: string, d: number) {
     setCart((c) => {
-      const n = Math.max(0, Math.min(20, (c[id] ?? 0) + d));
+      const n = Math.max(0, Math.min(20, products.find((p) => p.id === id)?.stock ?? 0, (c[id] ?? 0) + d));
       const next = { ...c };
       if (n === 0) delete next[id];
       else next[id] = n;
@@ -51,8 +51,9 @@ export function MarketStore() {
         },
       });
       navigate({ to: "/invoice/$orderId", params: { orderId: res.id } });
-    } catch {
-      setError("تأكد من المعلومات (الهاتف مثلاً 06XXXXXXXX) وحاول مجدداً.");
+    } catch (err) {
+      const m = err instanceof Error && err.message.includes("المخزون") ? err.message : null;
+      setError(m ?? "تأكد من المعلومات (الهاتف مثلاً 06XXXXXXXX) وحاول مجدداً.");
       setBusy(false);
     }
   }
@@ -63,7 +64,9 @@ export function MarketStore() {
         {products.map((p) => (
           <article key={p.id} className="rounded-xl border border-border bg-card/80 p-5 backdrop-blur">
             <h3 className="font-display text-lg font-black text-foreground">{p.title}</h3>
+            {p.imageUrl ? <img src={p.imageUrl} alt={p.title} loading="lazy" className="mb-3 aspect-square w-full rounded-lg object-cover" /> : null}
             <p className="mt-1 text-sm text-muted-foreground">{p.description}</p>
+            <p className={`mt-1 text-xs ${p.stock === 0 ? "text-destructive" : "text-muted-foreground"}`}>{p.stock === 0 ? "نفد المخزون" : p.stock <= 5 ? `مخزون محدود: ${p.stock}` : "متوفر"}</p>
             <div className="mt-4 flex items-center justify-between">
               <span className="text-xl font-black text-primary">{formatMad(p.priceMad)}</span>
               <div className="flex items-center gap-2">
@@ -111,8 +114,11 @@ export function MarketStore() {
         </p>
         <div className="mt-4 space-y-3">
           <input name="name" required minLength={2} maxLength={60} placeholder="الاسم الكامل" className={field} />
-          <input name="phone" required inputMode="tel" placeholder="الهاتف 06XXXXXXXX" className={field} />
-          <input name="city" required minLength={2} maxLength={40} placeholder="المدينة" className={field} />
+          <input name="phone" required inputMode="tel" pattern="^(\\+212|00212|0)[5-7][0-9 .\\-]{8,12}$" placeholder="الهاتف 06XXXXXXXX" className={field} />
+          <select name="city" required defaultValue="" className={field}>
+            <option value="" disabled>اختر المدينة</option>
+            {MA_CITIES.map((c) => <option key={c} value={c}>{c}</option>)}
+          </select>
           <input name="address" required minLength={5} maxLength={200} placeholder="العنوان" className={field} />
           <textarea name="notes" maxLength={300} placeholder="ملاحظات (اختياري)" className={`${field} h-20 py-2`} />
         </div>
