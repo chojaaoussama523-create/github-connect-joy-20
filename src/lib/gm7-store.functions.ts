@@ -150,7 +150,10 @@ export const createCodOrder = createServerFn({ method: "POST" })
       })
       .select("id")
       .single();
-    if (error || !row) throw new Error("تعذر إنشاء الطلب");
+    if (error || !row) {
+      for (const r of reserved) await adjustStock(db, r.productId, r.qty);
+      throw new Error("تعذر إنشاء الطلب");
+    }
     return { id: row.id as string };
   });
 
