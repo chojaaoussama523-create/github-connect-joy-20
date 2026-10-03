@@ -94,6 +94,95 @@ export const checkInRegistration = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
+/* ---- Admin + anti-duplicate on gm7_tournament_registrations ---- */
+
+export type TRegStatus = "pending" | "accepted" | "waitlist" | "rejected" | "disqualified";
+export type TRegRow = {
+  id: string;
+  tournamentId: string;
+  teamName: string;
+  captainName: string;
+  phone: string;
+  discord: string;
+  city: string;
+  platformId: string;
+  mode: number;
+  players: { name: string; ign: string }[];
+  status: TRegStatus;
+  createdAt: string;
+};
+
+type TDbRow = {
+  id: string; tournament_id: string; team_name: string; captain_name: string; phone: string;
+  discord: string; city: string; platform_id: string; mode: number; players: unknown;
+  status: string; created_at: string;
+};
+
+function toTDto(r: TDbRow): TRegRow {
+  return {
+    id: r.id, tournamentId: r.tournament_id, teamName: r.team_name, captainName: r.captain_name,
+    phone: r.phone, discord: r.discord, city: r.city, platformId: r.platform_id, mode: r.mode,
+    players: Array.isArray(r.players) ? (r.players as { name: string; ign: string }[]) : [],
+    status: r.status as TRegStatus, createdAt: r.created_at,
+  };
+}
+
+const norm = (s: string) => s.trim().toLowerCase().replace(/\s+/g, "");
+
+export const checkDuplicateRegistration = createServerFn({ method: "POST" })
+  .inputValidator((d: unknown) =>
+    z.object({ tournamentId: z.string().uuid(), phone: z.string().max(20), platformId: z.string().max(40) }).parse(d),
+  )
+  .handler(async ({ data }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: rows } = await supabaseAdmin
+      .from("gm7_tournament_registrations")
+      .select("phone, platform_id, status")
+      .eq("tournament_id", data.tournamentId)
+      .neq("status", "rejected");
+    const phone = norm(data.phone);
+    const ign = norm(data.platformId);
+    const dup = (rows ?? []).some((r) => norm(r.phone) === phone || norm(r.platform_id) === ign);
+    return { duplicate: dup };
+  });
+
+export const adminListTournamentRegistrations = createServerFn({ method: "POST" })
+  .inputValidator((d: unknown) => z.object({ access: z.string().max(64) }).parse(d))
+  .handler(async ({ data }) => {
+    checkAdmin(data.access);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: rows } = await supabaseAdmin
+      .from("gm7_tournament_registrations")
+      .select("*")
+      .order("created_at", { ascending: false })
+      .limit(1000);
+    return (rows ?? []).map((r) => toTDto(r as TDbRow));
+  });
+
+export const adminSetTournamentRegStatus = createServerFn({ method: "POST" })
+  .inputValidator((d: unknown) =>
+    z.object({
+      access: z.string().max(64),
+      id: z.string().uuid(),
+      status: z.enum(["pending", "accepted", "waitlist", "rejected", "disqualified"]),
+    }).parse(d),
+  )
+  .handler(async ({ data }) => {
+    checkAdmin(data.access);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    await supabaseAdmin.from("gm7_tournament_registrations").update({ status: data.status }).eq("id", data.id);
+    return { ok: true };
+  });
+
+export const adminDeleteTournamentRegistration = createServerFn({ method: "POST" })
+  .inputValidator((d: unknown) => z.object({ access: z.string().max(64), id: z.string().uuid() }).parse(d))
+  .handler(async ({ data }) => {
+    checkAdmin(data.access);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    await supabaseAdmin.from("gm7_tournament_registrations").delete().eq("id", data.id);
+    return { ok: true };
+  });
+
 export const adminListRegistrations = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) => z.object({ access: z.string().max(64) }).parse(d))
   .handler(async ({ data }) => {
