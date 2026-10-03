@@ -85,9 +85,19 @@ function toOrder(r: any): Order {
   };
 }
 
+export const MA_CITIES = [
+  "الدار البيضاء", "الرباط", "سلا", "تمارة", "القنيطرة", "مراكش", "فاس", "مكناس", "طنجة", "تطوان",
+  "أكادير", "وجدة", "الناظور", "الحسيمة", "بني ملال", "خريبكة", "الجديدة", "آسفي", "المحمدية", "سطات",
+  "العيون", "الداخلة", "كلميم", "تازة", "الراشيدية", "ورزازات", "العرائش", "خنيفرة", "برشيد", "أخرى",
+] as const;
+
 const orderSchema = z.object({
   customerName: z.string().trim().min(2).max(60),
-  phone: z.string().trim().regex(/^\+?[0-9 ]{9,16}$/),
+  phone: z
+    .string()
+    .trim()
+    .transform((v) => v.replace(/[\s.-]/g, ""))
+    .refine((v) => /^(?:\+212|00212|0)[5-7]\d{8}$/.test(v), "invalid phone"),
   city: z.string().trim().min(2).max(40),
   address: z.string().trim().min(5).max(200),
   notes: z.string().trim().max(300).default(""),
@@ -101,13 +111,25 @@ export const createCodOrder = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) => orderSchema.parse(d))
   .handler(async ({ data }) => {
     const db = await admin();
-    const ids = data.items.map((i) => i.productId);
+    const merged = new Map<string, number>();
+    for (const i of data.items) merged.set(i.productId, (merged.get(i.productId) ?? 0) + i.qty);
+    const ids = [...merged.keys()];
     const { data: products } = await db.from("market_products").select("*").in("id", ids).eq("active", true);
-    const items: OrderItem[] = data.items.map((i) => {
-      const p = products?.find((x) => x.id === i.productId);
+    const items: OrderItem[] = ids.map((id) => {
+      const qty = merged.get(id)!;
+      const p = products?.find((x) => x.id === id);
       if (!p) throw new Error("منتج غير متوفر");
-      return { productId: p.id, title: p.title, qty: i.qty, priceMad: Number(p.price_mad) };
+      if (qty > 20 || p.stock < qty) throw new Error(`المخزون غير كافٍ: ${p.title}`);
+      return { productId: p.id, title: p.title, qty, priceMad: Number(p.price_mad) };
     });
+    const reserved: OrderItem[] = [];
+    for (const i of items) {
+      if (!(await adjustStock(db, i.productId, -i.qty))) {
+        for (const r of reserved) await adjustStock(db, r.productId, r.qty);
+        throw new Error(`المخزون غير كافٍ: ${i.title}`);
+      }
+      reserved.push(i);
+    }
     const subtotal = items.reduce((s, i) => s + i.qty * i.priceMad, 0);
     const shipping = subtotal >= FREE_SHIPPING_FROM_MAD ? 0 : SHIPPING_MAD;
     const orderNumber = `GM7-${Date.now().toString(36).toUpperCase()}${Math.floor(Math.random() * 90 + 10)}`;
@@ -162,6 +184,8 @@ export const adminSetOrderStatus = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     checkAdmin(data.access);
     const db = await admin();
+    const { data: prev } = await db.from("market_orders").select("status, items").eq("id", data.id).maybeSingle();
+    if (!prev) throw new Error("Not found");
     await db
       .from("market_orders")
       .update({
@@ -169,6 +193,90 @@ export const adminSetOrderStatus = createServerFn({ method: "POST" })
         ...(data.status === "confirmed" ? { confirmed_at: new Date().toISOString() } : {}),
       })
       .eq("id", data.id);
+    const wasCancelled = prev.status === "cancelled";
+    const nowCancelled = data.status === "cancelled";
+    if (wasCancelled !== nowCancelled) {
+      for (const i of (prev.items as OrderItem[]) ?? []) {
+        await adjustStock(db, i.productId, nowCancelled ? i.qty : -i.qty);
+      }
+    }
+    return { ok: true };
+  });
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+async function adjustStock(db: any, productId: string, delta: number): Promise<boolean> {
+  for (let attempt = 0; attempt < 3; attempt++) {
+    const { data: p } = await db.from("market_products").select("stock").eq("id", productId).maybeSingle();
+    if (!p) return false;
+    const next = p.stock + delta;
+    if (next < 0) return false;
+    const { data: upd } = await db
+      .from("market_products")
+      .update({ stock: next })
+      .eq("id", productId)
+      .eq("stock", p.stock)
+      .select("id");
+    if (upd && upd.length) return true;
+  }
+  return false;
+}
+
+/* ---------------- Products admin ---------------- */
+const productSchema = z.object({
+  access: z.string().max(64),
+  id: z.string().uuid().optional(),
+  title: z.string().trim().min(2).max(80),
+  description: z.string().trim().max(400).default(""),
+  priceMad: z.number().min(0).max(100000),
+  imageUrl: z.string().trim().url().max(500).nullable().or(z.literal("").transform(() => null)),
+  stock: z.number().int().min(0).max(100000),
+  active: z.boolean(),
+});
+
+export const adminListProducts = createServerFn({ method: "POST" })
+  .inputValidator((d: unknown) => z.object({ access: z.string().max(64) }).parse(d))
+  .handler(async ({ data }): Promise<Product[]> => {
+    checkAdmin(data.access);
+    const db = await admin();
+    const { data: rows } = await db.from("market_products").select("*").order("created_at", { ascending: true });
+    return (rows ?? []).map((p) => ({
+      id: p.id,
+      title: p.title,
+      description: p.description,
+      priceMad: Number(p.price_mad),
+      imageUrl: p.image_url,
+      stock: p.stock,
+      active: p.active,
+    }));
+  });
+
+export const adminSaveProduct = createServerFn({ method: "POST" })
+  .inputValidator((d: unknown) => productSchema.parse(d))
+  .handler(async ({ data }) => {
+    checkAdmin(data.access);
+    const db = await admin();
+    const row = {
+      title: data.title,
+      description: data.description,
+      price_mad: data.priceMad,
+      image_url: data.imageUrl,
+      stock: data.stock,
+      active: data.active,
+    };
+    const { error } = data.id
+      ? await db.from("market_products").update(row).eq("id", data.id)
+      : await db.from("market_products").insert(row);
+    if (error) throw new Error("تعذر الحفظ");
+    return { ok: true };
+  });
+
+export const adminDeleteProduct = createServerFn({ method: "POST" })
+  .inputValidator((d: unknown) => z.object({ access: z.string().max(64), id: z.string().uuid() }).parse(d))
+  .handler(async ({ data }) => {
+    checkAdmin(data.access);
+    const db = await admin();
+    const { error } = await db.from("market_products").delete().eq("id", data.id);
+    if (error) throw new Error("تعذر الحذف");
     return { ok: true };
   });
 
