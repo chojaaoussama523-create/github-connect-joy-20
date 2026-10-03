@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthRouteImport } from './routes/auth'
 import { Route as Gm7DashboardRouteImport } from './routes/gm7-dashboard'
 import { Route as HomeRouteImport } from './routes/home'
 import { Route as MarketRouteImport } from './routes/market'
@@ -20,6 +21,11 @@ import { Route as InvoiceOrderIdRouteImport } from './routes/invoice.$orderId'
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
 const Gm7DashboardRoute = Gm7DashboardRouteImport.update({
@@ -55,6 +61,7 @@ const InvoiceOrderIdRoute = InvoiceOrderIdRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
   '/gm7-dashboard': typeof Gm7DashboardRoute
   '/home': typeof HomeRoute
   '/market': typeof MarketRoute
@@ -64,6 +71,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
   '/gm7-dashboard': typeof Gm7DashboardRoute
   '/home': typeof HomeRoute
   '/market': typeof MarketRoute
@@ -74,6 +82,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
   '/gm7-dashboard': typeof Gm7DashboardRoute
   '/home': typeof HomeRoute
   '/market': typeof MarketRoute
@@ -85,6 +94,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/auth'
     | '/gm7-dashboard'
     | '/home'
     | '/market'
@@ -94,6 +104,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/auth'
     | '/gm7-dashboard'
     | '/home'
     | '/market'
@@ -102,7 +113,7 @@ export interface FileRouteTypes {
     | '/invoice/$orderId'
   id:
     | '__root__'
-    | '/'
+    | '/auth'
     | '/gm7-dashboard'
     | '/home'
     | '/market'
@@ -113,6 +124,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthRoute: typeof AuthRoute
   Gm7DashboardRoute: typeof Gm7DashboardRoute
   HomeRoute: typeof HomeRoute
   MarketRoute: typeof MarketRoute
@@ -128,6 +140,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/gm7-dashboard': {
@@ -177,6 +196,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthRoute: AuthRoute,
   Gm7DashboardRoute: Gm7DashboardRoute,
   HomeRoute: HomeRoute,
   MarketRoute: MarketRoute,
