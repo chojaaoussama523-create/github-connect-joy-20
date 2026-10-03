@@ -212,11 +212,19 @@ function Info({ label, value }: { label: string; value: string }) {
 function RegisterForm({ tournament: t, onDone }: { tournament: Tournament; onDone: () => void }) {
   const qc = useQueryClient();
   const submitFn = useServerFn(registerForTournament);
+  const dupFn = useServerFn(checkDuplicateRegistration);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [ok, setOk] = useState(false);
+  const [countdown, setCountdown] = useState(3);
   const roster = t.mode;
   const remaining = Math.max(t.slots - t.registered, 0);
+
+  useEffect(() => {
+    if (countdown <= 0) return;
+    const id = setTimeout(() => setCountdown((c) => c - 1), 1000);
+    return () => clearTimeout(id);
+  }, [countdown]);
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -229,6 +237,13 @@ function RegisterForm({ tournament: t, onDone }: { tournament: Tournament; onDon
     setBusy(true);
     setError(null);
     try {
+      const dup = await dupFn({
+        data: { tournamentId: t.id, phone: String(f.get("phone") ?? ""), platformId: String(f.get("platformId") ?? "") },
+      });
+      if (dup.duplicate) {
+        setError("⚠️ تسجيل مكرر: هذا الرقم أو معرّف اللعبة مسجل already في هاته البطولة. التكرار يعرضك للاستبعاد.");
+        return;
+      }
       await submitFn({
         data: {
           tournamentId: t.id,
