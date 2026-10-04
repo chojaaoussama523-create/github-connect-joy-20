@@ -5,6 +5,7 @@ import marketLogo from "@/assets/gm7-market-logo.png.asset.json";
 import { BrandPage } from "@/components/BrandPage";
 import { BrandShell } from "@/components/BrandShell";
 import { MarketStore, productsQuery } from "@/components/MarketStore";
+import { DigitalMarket, digitalProductsQuery } from "@/components/DigitalMarket";
 
 export const Route = createFileRoute("/market")({
   head: () => ({
@@ -17,7 +18,8 @@ export const Route = createFileRoute("/market")({
       { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
-  loader: ({ context }) => context.queryClient.ensureQueryData(productsQuery),
+  loader: ({ context }) =>
+    Promise.all([context.queryClient.ensureQueryData(productsQuery), context.queryClient.ensureQueryData(digitalProductsQuery)]),
   errorComponent: () => <p className="p-10 text-center text-muted-foreground">تعذر تحميل المتجر.</p>,
   component: MarketPage,
 });
@@ -36,6 +38,7 @@ function MarketPage() {
       />
       <div className="relative mx-auto w-full max-w-7xl px-5 pb-16 lg:px-8">
         <Suspense fallback={<p className="text-muted-foreground">...</p>}>
+          <DigitalMarket />
           <MarketStore />
         </Suspense>
       </div>

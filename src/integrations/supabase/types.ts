@@ -107,6 +107,77 @@ export type Database = {
         }
         Relationships: []
       }
+      gm7_market_orders: {
+        Row: {
+          created_at: string
+          id: string
+          player_id: string
+          product_id: string
+          status: string
+          total_price: number
+          whatsapp_number: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          player_id: string
+          product_id: string
+          status?: string
+          total_price: number
+          whatsapp_number: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          player_id?: string
+          product_id?: string
+          status?: string
+          total_price?: number
+          whatsapp_number?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "gm7_market_orders_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "gm7_market_products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      gm7_market_products: {
+        Row: {
+          category: string
+          created_at: string
+          description: string
+          id: string
+          image_url: string | null
+          price: number
+          stock_status: string
+          title: string
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          description?: string
+          id?: string
+          image_url?: string | null
+          price: number
+          stock_status?: string
+          title: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          description?: string
+          id?: string
+          image_url?: string | null
+          price?: number
+          stock_status?: string
+          title?: string
+        }
+        Relationships: []
+      }
       gm7_tournament_registrations: {
         Row: {
           captain_name: string
