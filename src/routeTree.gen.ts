@@ -113,6 +113,7 @@ export interface FileRouteTypes {
     | '/invoice/$orderId'
   id:
     | '__root__'
+    | '/'
     | '/auth'
     | '/gm7-dashboard'
     | '/home'
