@@ -52,7 +52,7 @@ export function DigitalMarket() {
           <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="ابحث عن منتج..." className={`${field} pr-10`} />
         </label>
         <div className="flex flex-wrap gap-2">
-          {[["all", "الكل"], ...Object.entries(DIGITAL_CATEGORIES)].map(([k, v]) => (
+          {([["all", "الكل"], ...Object.entries(DIGITAL_CATEGORIES)] as [string, string][]).map(([k, v]) => (
             <Button key={k} variant={cat === k ? "default" : "outline"} onClick={() => setCat(k)}>{v}</Button>
           ))}
         </div>
