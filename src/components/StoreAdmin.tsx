@@ -5,12 +5,16 @@ import { useState, type FormEvent } from "react";
 import { Button } from "@/components/ui/button";
 import {
   adminAddMedia,
+  adminDeleteProduct,
   adminDeleteTournament,
   adminListOrders,
+  adminListProducts,
+  adminSaveProduct,
   adminSaveTournament,
   adminSetOrderStatus,
   adminUpdateMedia,
   type OrderStatus,
+  type Product,
 } from "@/lib/gm7-store.functions";
 import { formatMad, ORDER_STATUS_LABELS } from "@/lib/gm7-format";
 import { GAMES, PLATFORMS } from "@/lib/gm7-tournaments";
