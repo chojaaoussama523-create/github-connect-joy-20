@@ -5,12 +5,16 @@ import { useState, type FormEvent } from "react";
 import { Button } from "@/components/ui/button";
 import {
   adminAddMedia,
+  adminDeleteProduct,
   adminDeleteTournament,
   adminListOrders,
+  adminListProducts,
+  adminSaveProduct,
   adminSaveTournament,
   adminSetOrderStatus,
   adminUpdateMedia,
   type OrderStatus,
+  type Product,
 } from "@/lib/gm7-store.functions";
 import { formatMad, ORDER_STATUS_LABELS } from "@/lib/gm7-format";
 import { GAMES, PLATFORMS } from "@/lib/gm7-tournaments";
@@ -215,6 +219,94 @@ export function MediaAdmin({ access }: { access: string }) {
           </li>
         ))}
       </ul>
+    </div>
+  );
+}
+
+export function ProductsAdmin({ access }: { access: string }) {
+  const list = useServerFn(adminListProducts);
+  const save = useServerFn(adminSaveProduct);
+  const del = useServerFn(adminDeleteProduct);
+  const { data, refetch, isLoading } = useQuery({ queryKey: ["admin-products"], queryFn: () => list({ data: { access } }) });
+  const products = data ?? [];
+  const [editing, setEditing] = useState<Product | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function submit(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const form = e.currentTarget;
+    const f = new FormData(form);
+    setBusy(true);
+    setError(null);
+    try {
+      await save({
+        data: {
+          access,
+          id: editing?.id,
+          title: String(f.get("title")).trim(),
+          description: String(f.get("description") ?? "").trim(),
+          priceMad: Number(f.get("price")) || 0,
+          imageUrl: String(f.get("image") ?? "").trim() || null,
+          stock: Number(f.get("stock")) || 0,
+          active: f.get("active") === "on",
+        },
+      });
+      setEditing(null);
+      form.reset();
+      refetch();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "حدث خطأ");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <div dir="rtl" className="space-y-4">
+      <h3 className="font-display text-xl font-black">إدارة المنتجات</h3>
+      <form key={editing?.id ?? "new"} onSubmit={submit} className="grid gap-2 rounded-xl border border-border bg-card/80 p-4 sm:grid-cols-3">
+        <input name="title" required minLength={2} defaultValue={editing?.title} placeholder="اسم المنتج" className={field} />
+        <input name="price" type="number" min={0} required defaultValue={editing?.priceMad} placeholder="الثمن (درهم)" className={field} />
+        <input name="stock" type="number" min={0} required defaultValue={editing?.stock ?? 0} placeholder="المخزون" className={field} />
+        <input name="image" type="url" defaultValue={editing?.imageUrl ?? ""} placeholder="رابط الصورة" className={`${field} sm:col-span-2`} />
+        <label className="flex items-center gap-2 text-sm"><input name="active" type="checkbox" defaultChecked={editing?.active ?? true} /> متاح للبيع</label>
+        <textarea name="description" rows={2} defaultValue={editing?.description} placeholder="الوصف" className={`${field} h-auto py-2 sm:col-span-3`} />
+        {error ? <p className="text-sm text-destructive sm:col-span-3">{error}</p> : null}
+        <div className="flex gap-2 sm:col-span-3">
+          <Button type="submit" disabled={busy}>{busy ? "..." : editing ? "حفظ التعديل" : "إضافة منتج"}</Button>
+          {editing ? <Button type="button" variant="outline" onClick={() => setEditing(null)}>إلغاء</Button> : null}
+        </div>
+      </form>
+      {isLoading ? <p className="text-muted-foreground">...</p> : null}
+      <div className="overflow-x-auto rounded-xl border border-border bg-card/80">
+        <table className="w-full text-sm">
+          <thead className="text-muted-foreground">
+            <tr className="border-b border-border text-right">
+              <th className="p-3">المنتج</th><th className="p-3">الثمن</th><th className="p-3">المخزون</th><th className="p-3">الحالة</th><th className="p-3">إجراء</th>
+            </tr>
+          </thead>
+          <tbody>
+            {products.map((p) => (
+              <tr key={p.id} className="border-b border-border last:border-0">
+                <td className="p-3 font-bold">{p.title}</td>
+                <td className="p-3">{formatMad(p.priceMad)}</td>
+                <td className="p-3">{p.stock}</td>
+                <td className="p-3">{p.active ? "متاح" : "موقوف"}</td>
+                <td className="p-3">
+                  <div className="flex gap-1">
+                    <Button size="sm" variant="outline" onClick={() => setEditing(p)}>تعديل</Button>
+                    <Button size="sm" variant="destructive" onClick={async () => { if (confirm("حذف المنتج؟")) { await del({ data: { access, id: p.id } }); refetch(); } }}>حذف</Button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+            {products.length === 0 && !isLoading ? (
+              <tr><td colSpan={5} className="p-6 text-center text-muted-foreground">لا توجد منتجات بعد.</td></tr>
+            ) : null}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }
