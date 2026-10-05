@@ -95,7 +95,7 @@ function YouTubeTab() {
               {pl === p.id && (
                 <div className="grid gap-2 px-3 pb-3">
                   {plq.isLoading && <Loader2 className="mx-auto size-5 animate-spin" />}
-                  {plq.data?.map((i) => (
+                  {plq.data?.map((i: { videoId: string; title: string; thumbnail: string }) => (
                     <button key={i.videoId} onClick={() => setOpen(i.videoId)} className="flex items-center gap-3 rounded-lg bg-secondary/50 p-2 text-right hover:bg-secondary">
                       <img src={i.thumbnail} alt="" className="aspect-video w-24 rounded object-cover" />
                       <span className="text-sm">{i.title}</span>
