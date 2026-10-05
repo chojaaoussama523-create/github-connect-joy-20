@@ -6,6 +6,7 @@ import { BrandPage } from "@/components/BrandPage";
 import { BrandShell } from "@/components/BrandShell";
 import { Suspense } from "react";
 import { SnnseiMedia, mediaQuery } from "@/components/SnnseiMedia";
+import { SnnseiSocial } from "@/components/SnnseiSocial";
 
 export const Route = createFileRoute("/snnsei")({
   head: () => ({
@@ -52,6 +53,7 @@ function SnnseiPage() {
         </div>
       </BrandPage>
       <div className="relative mx-auto w-full max-w-7xl px-5 pb-16 lg:px-8">
+        <SnnseiSocial />
         <Suspense fallback={null}><SnnseiMedia /></Suspense>
       </div>
     </BrandShell>
