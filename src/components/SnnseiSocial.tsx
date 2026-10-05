@@ -25,8 +25,8 @@ function Elfsight({ appId }: { appId: string }) {
     }
   }, [appId]);
   return (
-    <div className="min-h-72 rounded-xl border border-border bg-card/60 p-4">
-      <div className={`elfsight-app-${appId}`} data-elfsight-app-lazy="" />
+    <div className="w-full min-w-0 max-w-full overflow-hidden rounded-xl border border-border bg-card/60 p-2 sm:p-4">
+      <div className={`elfsight-app-${appId} w-full max-w-full [&_*]:max-w-full`} data-elfsight-app-lazy="" />
     </div>
   );
 }
@@ -153,8 +153,20 @@ function DiscordTab() {
 
 export function SnnseiSocial() {
   const [tab, setTab] = useState<Tab>("youtube");
+  useEffect(() => {
+    const sync = () => {
+      const h = window.location.hash.replace("#tab-", "") as Tab;
+      if (TABS.some((t) => t.id === h)) {
+        setTab(h);
+        document.getElementById("snnsei-tabs")?.scrollIntoView({ behavior: "smooth" });
+      }
+    };
+    sync();
+    window.addEventListener("hashchange", sync);
+    return () => window.removeEventListener("hashchange", sync);
+  }, []);
   return (
-    <section className="mb-12">
+    <section id="snnsei-tabs" className="mb-12 min-w-0 scroll-mt-24">
       <div className="mb-6 flex gap-2 overflow-x-auto pb-2">
         {TABS.map(({ id, label, Icon }) => (
           <button key={id} onClick={() => setTab(id)} className={`inline-flex shrink-0 items-center gap-2 rounded-lg px-4 py-2 text-sm font-black transition ${tab === id ? "bg-primary text-primary-foreground" : "bg-secondary text-secondary-foreground hover:bg-secondary/70"}`}>
