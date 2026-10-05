@@ -58,7 +58,7 @@ export const getYoutubeFeed = createServerFn({ method: "GET" }).handler(async ()
 
 export const getPlaylistVideos = createServerFn({ method: "GET" })
   .inputValidator((d: unknown) => z.object({ id: z.string().min(5).max(64) }).parse(d))
-  .handler(async ({ data }) => {
+  .handler(async ({ data }): Promise<{ videoId: string; title: string; thumbnail: string }[]> => {
     const key = process.env["YOUTUBE_API_KEY"] || "AIzaSyC-MyP-v16zhd-NFRo9h3G3Wi2Fk9vkgZc";
     const r = await yt(key, "playlistItems", { part: "snippet,contentDetails", playlistId: data.id, maxResults: "50" });
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
