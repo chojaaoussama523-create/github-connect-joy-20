@@ -4,8 +4,6 @@ import snnseiBg from "@/assets/snnsei-bg.jpg.asset.json";
 import snnseiLogo from "@/assets/snnsei-logo.png.asset.json";
 import { BrandPage } from "@/components/BrandPage";
 import { BrandShell } from "@/components/BrandShell";
-import { Suspense } from "react";
-import { SnnseiMedia, mediaQuery } from "@/components/SnnseiMedia";
 import { SnnseiSocial } from "@/components/SnnseiSocial";
 
 export const Route = createFileRoute("/snnsei")({
@@ -19,17 +17,15 @@ export const Route = createFileRoute("/snnsei")({
       { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
-  loader: ({ context }) => context.queryClient.ensureQueryData(mediaQuery),
-  errorComponent: () => <p className="p-10 text-center">تعذر تحميل المحتوى.</p>,
   component: SnnseiPage,
 });
 
 const CHANNELS = [
-  { label: "KICK", Icon: Radio, href: "https://kick.com/snnsei" },
-  { label: "YOUTUBE", Icon: Play, href: "https://youtube.com/@snnsei" },
-  { label: "INSTAGRAM", Icon: Instagram, href: "https://www.instagram.com/snnseii" },
-  { label: "TIKTOK", Icon: Music2, href: "https://www.tiktok.com/@snnsei_" },
-  { label: "DISCORD", Icon: MessageCircle, href: "https://discord.gg/snnsei" },
+  { label: "KICK", id: "kick", Icon: Radio },
+  { label: "YOUTUBE", id: "youtube", Icon: Play },
+  { label: "INSTAGRAM", id: "instagram", Icon: Instagram },
+  { label: "TIKTOK", id: "tiktok", Icon: Music2 },
+  { label: "DISCORD", id: "discord", Icon: MessageCircle },
 ] as const;
 
 function SnnseiPage() {
@@ -45,16 +41,15 @@ function SnnseiPage() {
         accent="snnsei"
       >
         <div className="channel-row" aria-label="منصات SNNSEI">
-          {CHANNELS.map(({ label, Icon, href }) => (
-            <a key={label} href={href} target="_blank" rel="noopener noreferrer" className="channel-chip">
+          {CHANNELS.map(({ label, id, Icon }) => (
+            <a key={label} href={`#tab-${id}`} className="channel-chip">
               <Icon aria-hidden="true" /> {label}
             </a>
           ))}
         </div>
       </BrandPage>
-      <div className="relative mx-auto w-full max-w-7xl px-5 pb-16 lg:px-8">
+      <div className="relative mx-auto w-full min-w-0 max-w-7xl overflow-x-hidden px-3 pb-16 sm:px-5 lg:px-8">
         <SnnseiSocial />
-        <Suspense fallback={null}><SnnseiMedia /></Suspense>
       </div>
     </BrandShell>
   );
