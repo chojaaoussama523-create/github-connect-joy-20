@@ -1,0 +1,3 @@
+insert into public.gm7_active_tournaments (title, description, category, format, game_id, game_name, platform, prize_mad, slots, bracket_size, mode, status)
+select 'GM7 Free Fire Cup', 'بطولة Free Fire الرسمية لمجتمع GM7.', 'battle_royale', 'elimination', 'free-fire', 'Free Fire', 'Mobile', 1000, 32, 32, 1, 'in_progress'
+where not exists (select 1 from public.gm7_active_tournaments where title = 'GM7 Free Fire Cup');
