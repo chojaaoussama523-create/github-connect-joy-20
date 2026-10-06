@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Suspense } from "react";
+import { Suspense, useState } from "react";
 import marketBg from "@/assets/market-bg.jpg.asset.json";
 import marketLogo from "@/assets/gm7-market-logo.png.asset.json";
 import { BrandPage } from "@/components/BrandPage";
@@ -25,6 +25,7 @@ export const Route = createFileRoute("/market")({
 });
 
 function MarketPage() {
+  const [tab, setTab] = useState<"physical" | "digital">("physical");
   return (
     <BrandShell>
       <BrandPage
@@ -38,8 +39,12 @@ function MarketPage() {
       />
       <div className="relative mx-auto w-full max-w-7xl px-5 pb-16 lg:px-8">
         <Suspense fallback={<p className="text-muted-foreground">...</p>}>
-          <DigitalMarket />
-          <MarketStore />
+          <div className="mb-6 flex gap-2">
+            {([["physical", "Physical (COD)"], ["digital", "Digital Top-ups"]] as const).map(([id, label]) => (
+              <button key={id} onClick={() => setTab(id)} className={`rounded-lg px-4 py-2 text-sm font-black ${tab === id ? "bg-primary text-primary-foreground" : "bg-secondary text-secondary-foreground"}`}>{label}</button>
+            ))}
+          </div>
+          {tab === "physical" ? <MarketStore /> : <DigitalMarket />}
         </Suspense>
       </div>
     </BrandShell>

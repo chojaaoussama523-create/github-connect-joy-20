@@ -11,7 +11,7 @@ async function admin() {
 }
 
 export const DIGITAL_CATEGORIES = { giftcard: "بطاقات الهدايا", currency: "عملات الألعاب", topup: "شحن فوري" } as const;
-export const SUPPORT_WHATSAPP = "212600000000";
+export const SUPPORT_WHATSAPP = "212700213740";
 
 export type DigitalProduct = {
   id: string; title: string; category: string; price: number; image_url: string | null; stock_status: string; description: string;

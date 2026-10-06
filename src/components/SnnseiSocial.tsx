@@ -13,17 +13,25 @@ const TABS: { id: Tab; label: string; Icon: typeof Play }[] = [
 ];
 
 function Elfsight({ appId }: { appId: string }) {
+  const [failed, setFailed] = useState(false);
   useEffect(() => {
     const src = "https://elfsightcdn.com/platform.js";
-    if (!document.querySelector(`script[src="${src}"]`)) {
-      const s = document.createElement("script");
-      s.src = src;
-      s.async = true;
-      document.body.appendChild(s);
-    } else {
-      (window as unknown as { eapps?: { init?: () => void } }).eapps?.init?.();
+    try {
+      const existing = document.querySelector(`script[src="${src}"]`);
+      if (!existing) {
+        const s = document.createElement("script");
+        s.src = src;
+        s.defer = true;
+        s.onerror = () => setFailed(true);
+        document.body.appendChild(s);
+      } else {
+        (window as unknown as { eapps?: { init?: () => void } }).eapps?.init?.();
+      }
+    } catch {
+      setFailed(true);
     }
   }, [appId]);
+  if (failed) return <p className="rounded-xl border border-border bg-card/60 p-6 text-center text-sm text-muted-foreground">تعذر تحميل المحتوى، افتح القناة مباشرة.</p>;
   return (
     <div className="w-full min-w-0 max-w-full overflow-hidden rounded-xl border border-border bg-card/60 p-2 sm:p-4">
       <div className={`elfsight-app-${appId} w-full max-w-full [&_*]:max-w-full`} data-elfsight-app-lazy="" />
