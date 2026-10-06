@@ -44,13 +44,19 @@ export function AnnouncementBar() {
 
     const muteForOtherMedia = (event: Event) => {
       const target = event.target;
-      if (target instanceof HTMLMediaElement && target !== video && !target.muted) {
+      if (target instanceof HTMLMediaElement && target !== video) {
+        document.querySelectorAll("video, audio").forEach((m) => {
+          if (m !== target && m !== video) (m as HTMLMediaElement).pause();
+        });
         video.muted = true;
+        canTryAudio = false;
       }
     };
+    const muteBanner = () => { video.muted = true; canTryAudio = false; };
 
     video.addEventListener("timeupdate", muteAfterFirstLoop);
     document.addEventListener("play", muteForOtherMedia, true);
+    window.addEventListener("gm7-media-play", muteBanner);
     window.addEventListener("pointerdown", tryAudioOnce, { once: true });
     window.addEventListener("keydown", tryAudioOnce, { once: true });
     void play(canTryAudio);
@@ -59,6 +65,7 @@ export function AnnouncementBar() {
       active = false;
       video.removeEventListener("timeupdate", muteAfterFirstLoop);
       document.removeEventListener("play", muteForOtherMedia, true);
+      window.removeEventListener("gm7-media-play", muteBanner);
       window.removeEventListener("pointerdown", tryAudioOnce);
       window.removeEventListener("keydown", tryAudioOnce);
     };

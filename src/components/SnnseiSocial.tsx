@@ -143,17 +143,38 @@ function KickTab() {
   );
 }
 
+const DISCORD_INVITE = "https://discord.gg/5V2tZcrw8";
+const DISCORD_ICON = "https://cdn.discordapp.com/icons/657841209259196437/a_efe991a60e3a230993f34eb796387eef.gif?size=256";
+
 function DiscordTab() {
   return (
     <div>
-      <Head title="Discord" href="https://discord.gg/snnsei" text="انضم لمجتمع SNNSEI و GM7." />
-      <div className="mx-auto max-w-md rounded-2xl border border-border bg-card/70 p-8 text-center">
-        <MessageCircle className="mx-auto mb-4 size-14 text-primary" />
-        <h3 className="mb-2 text-2xl font-black">SNNSEI COMMUNITY</h3>
-        <p className="mb-6 text-sm text-muted-foreground">بطولات، بثوث، وأخبار المجتمع في مكان واحد.</p>
-        <a href="https://discord.gg/snnsei" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-3 font-black text-primary-foreground">
-          انضم الآن <ExternalLink className="size-4" />
-        </a>
+      <Head title="Discord" href={DISCORD_INVITE} text="انضم لمجتمع L'GAMERS LMLA7 • GM7." />
+      <div className="relative mx-auto max-w-2xl overflow-hidden rounded-3xl border border-primary/40 bg-card/80 p-6 shadow-2xl sm:p-10">
+        <div className="pointer-events-none absolute -top-24 left-1/2 size-72 -translate-x-1/2 rounded-full bg-primary/25 blur-3xl" />
+        <div className="relative flex flex-col items-center text-center">
+          <img src={DISCORD_ICON} alt="GM7 Discord" className="mb-4 size-24 rounded-3xl border-2 border-primary/60 shadow-lg" />
+          <span className="mb-2 rounded-full bg-primary/15 px-3 py-1 text-xs font-black text-primary">GM7 OFFICIAL SERVER</span>
+          <h3 className="mb-2 text-2xl font-black sm:text-3xl">L'GAMERS LMLA7</h3>
+          <p className="mb-6 text-sm text-muted-foreground">بطولات، سكريمات، رومات صوتية وأخبار البث في مكان واحد.</p>
+          <div className="mb-6 grid w-full max-w-sm grid-cols-2 gap-3">
+            <div className="rounded-2xl border border-border bg-background/60 p-4">
+              <p className="text-2xl font-black">+3,850</p><p className="text-xs text-muted-foreground">عضو</p>
+            </div>
+            <div className="rounded-2xl border border-border bg-background/60 p-4">
+              <p className="flex items-center justify-center gap-2 text-2xl font-black"><span className="size-2.5 animate-pulse rounded-full bg-primary" />+680</p>
+              <p className="text-xs text-muted-foreground">متصل الآن</p>
+            </div>
+          </div>
+          <div className="mb-7 flex flex-wrap justify-center gap-2 text-xs font-bold">
+            {["🏆 بطولات GM7", "⚔️ سكريمات", "🎙️ رومات صوتية", "💬 دردشة عامة"].map((t) => (
+              <span key={t} className="rounded-full border border-border bg-secondary/60 px-3 py-1.5">{t}</span>
+            ))}
+          </div>
+          <a href={DISCORD_INVITE} target="_blank" rel="noopener noreferrer" className="inline-flex w-full max-w-sm items-center justify-center gap-2 rounded-2xl bg-primary px-6 py-4 text-lg font-black text-primary-foreground shadow-lg shadow-primary/30 transition hover:scale-[1.02]">
+            انضم إلى سيرفر GM7 <ExternalLink className="size-5" />
+          </a>
+        </div>
       </div>
     </div>
   );
