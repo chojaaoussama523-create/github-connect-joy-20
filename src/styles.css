@@ -601,3 +601,9 @@
 }
 
 .aspect-short { aspect-ratio: 9 / 16; }
+
+/* SNNSEI social cards: keep Elfsight posts as 9:16 video cards */
+.gm7-social-cards [class*="eapps-"] { max-width: 100% !important; }
+.gm7-social-cards video,
+.gm7-social-cards iframe { width: 100% !important; aspect-ratio: 9 / 16; height: auto !important; object-fit: cover; border-radius: 1rem; background: var(--background); }
+.gm7-social-cards a[href*="elfsight.com"] { display: none !important; }

@@ -33,8 +33,8 @@ function Elfsight({ appId }: { appId: string }) {
   }, [appId]);
   if (failed) return <p className="rounded-xl border border-border bg-card/60 p-6 text-center text-sm text-muted-foreground">تعذر تحميل المحتوى، افتح القناة مباشرة.</p>;
   return (
-    <div className="w-full min-w-0 max-w-full overflow-hidden rounded-xl border border-border bg-card/60 p-2 sm:p-4">
-      <div className={`elfsight-app-${appId} w-full max-w-full [&_*]:max-w-full`} data-elfsight-app-lazy="" />
+    <div className="gm7-social-cards w-full min-w-0 max-w-full overflow-hidden rounded-2xl border border-border bg-card/60 p-2 sm:p-4">
+      <div className={`elfsight-app-${appId} w-full max-w-full`} data-elfsight-app-lazy="" />
     </div>
   );
 }
