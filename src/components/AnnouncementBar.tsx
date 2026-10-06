@@ -38,7 +38,7 @@ export function AnnouncementBar() {
     };
 
     const muteAfterFirstLoop = () => {
-      if (lastTimeRef.current > video.currentTime + 0.5) video.muted = true;
+      if (lastTimeRef.current > video.currentTime + 0.5) { video.muted = true; canTryAudio = false; window.localStorage.setItem(AUDIO_FLAG, "true"); }
       lastTimeRef.current = video.currentTime;
     };
 
@@ -66,10 +66,6 @@ export function AnnouncementBar() {
 
   return (
     <>
-      <div className="announcement-strip" role="status">
-        <span className="announcement-dot" aria-hidden="true" />
-        <span>GM7 COMMUNITY • جديدنا يجمع اللعب، المنافسة والسوق في مكان واحد</span>
-      </div>
       <aside className="announcement-video-banner" aria-label="فيديو GM7 الترويجي">
         <video
           ref={videoRef}
@@ -83,6 +79,10 @@ export function AnnouncementBar() {
           aria-label="فيديو GM7 الترويجي"
         />
       </aside>
+      <div className="announcement-strip" role="status">
+        <span className="announcement-dot" aria-hidden="true" />
+        <span>GM7 COMMUNITY • جديدنا يجمع اللعب، المنافسة والسوق في مكان واحد</span>
+      </div>
     </>
   );
 }
