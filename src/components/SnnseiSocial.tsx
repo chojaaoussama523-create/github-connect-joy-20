@@ -12,29 +12,38 @@ const TABS: { id: Tab; label: string; Icon: typeof Play }[] = [
   { id: "discord", label: "DISCORD", Icon: MessageCircle },
 ];
 
-function Elfsight({ appId }: { appId: string }) {
-  const [failed, setFailed] = useState(false);
-  useEffect(() => {
-    const src = "https://elfsightcdn.com/platform.js";
-    try {
-      const existing = document.querySelector(`script[src="${src}"]`);
-      if (!existing) {
-        const s = document.createElement("script");
-        s.src = src;
-        s.defer = true;
-        s.onerror = () => setFailed(true);
-        document.body.appendChild(s);
-      } else {
-        (window as unknown as { eapps?: { init?: () => void } }).eapps?.init?.();
-      }
-    } catch {
-      setFailed(true);
-    }
-  }, [appId]);
-  if (failed) return <p className="rounded-xl border border-border bg-card/60 p-6 text-center text-sm text-muted-foreground">تعذر تحميل المحتوى، افتح القناة مباشرة.</p>;
+// Add real clip IDs here: TikTok video ID (digits) / Instagram reel code.
+const TIKTOK_IDS: string[] = [];
+const INSTA_CODES: string[] = [];
+
+function ShortCards({ kind, ids, href }: { kind: "tiktok" | "instagram"; ids: string[]; href: string }) {
+  const [active, setActive] = useState<string | null>(null);
+  const src = (id: string) => (kind === "tiktok" ? `https://www.tiktok.com/player/v1/${id}?autoplay=1&music_info=0&description=0` : `https://www.instagram.com/reel/${id}/embed`);
+  if (!ids.length)
+    return (
+      <a href={href} target="_blank" rel="noopener noreferrer" className="mx-auto flex aspect-[9/16] w-full max-w-xs flex-col items-center justify-center gap-3 rounded-2xl border border-primary/40 bg-card/70 p-6 text-center">
+        <Play className="size-10 text-primary" />
+        <span className="font-black">شاهد المقاطع على الحساب الرسمي</span>
+        <ExternalLink className="size-4 text-muted-foreground" />
+      </a>
+    );
   return (
-    <div className="gm7-social-cards w-full min-w-0 max-w-full overflow-hidden rounded-2xl border border-border bg-card/60 p-2 sm:p-4">
-      <div className={`elfsight-app-${appId} w-full max-w-full`} data-elfsight-app-lazy="" />
+    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+      {ids.map((id) => (
+        <div key={id} className="relative aspect-[9/16] w-full max-w-full overflow-hidden rounded-2xl border border-border bg-card">
+          {active === id ? (
+            <iframe src={src(id)} title={kind} className="h-full w-full" allow="autoplay; encrypted-media; fullscreen" allowFullScreen />
+          ) : (
+            <button
+              onClick={() => { window.dispatchEvent(new Event("gm7-media-play")); setActive(id); }}
+              className="flex h-full w-full flex-col items-center justify-center gap-2 bg-gradient-to-b from-secondary to-background"
+            >
+              <span className="flex size-14 items-center justify-center rounded-full bg-primary text-primary-foreground"><Play className="size-6" /></span>
+              <span className="text-xs font-bold text-muted-foreground">تشغيل</span>
+            </button>
+          )}
+        </div>
+      ))}
     </div>
   );
 }
@@ -205,8 +214,8 @@ export function SnnseiSocial() {
       </div>
       {tab === "youtube" && <YouTubeTab />}
       {tab === "kick" && <KickTab />}
-      {tab === "instagram" && (<div><Head title="Instagram" href="https://www.instagram.com/snnseii" text="آخر منشورات و Reels." /><Elfsight appId="5ebb7646-cd50-4e82-aaa5-f2094cc5c148" /></div>)}
-      {tab === "tiktok" && (<div><Head title="TikTok" href="https://www.tiktok.com/@snnsei_" text="آخر فيديوهات TikTok." /><Elfsight appId="91274312-ea48-44ce-9b2a-7d24b9746e22" /></div>)}
+      {tab === "instagram" && (<div><Head title="Instagram" href="https://www.instagram.com/snnseii" text="آخر Reels." /><ShortCards key="ig" kind="instagram" ids={INSTA_CODES} href="https://www.instagram.com/snnseii" /></div>)}
+      {tab === "tiktok" && (<div><Head title="TikTok" href="https://www.tiktok.com/@snnsei_" text="آخر فيديوهات TikTok." /><ShortCards key="tt" kind="tiktok" ids={TIKTOK_IDS} href="https://www.tiktok.com/@snnsei_" /></div>)}
       {tab === "discord" && <DiscordTab />}
     </section>
   );
